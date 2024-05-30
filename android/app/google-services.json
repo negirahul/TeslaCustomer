@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "389077641704",
+    "project_id": "tesla-ba0c3",
+    "storage_bucket": "tesla-ba0c3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:389077641704:android:80b2bc572d0ff666e29c5d",
+        "android_client_info": {
+          "package_name": "com.teslacustomer.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLsvgLHANTgcWb4lBz_zPjOumAK53tMHs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -85,7 +85,7 @@ function Wallet({ userDetails }) {
               <p>Sorry Your wallet is empty. You have not earned any points yet!</p>
             </div>
             :
-            <div>
+            <div className="mainbody" style={{height: '90vh'}}>
               <div className="empty-box shadow my-4">
                 <div className="text-center main-abmount">
                   <h2>&#8377; {userDetails.walletAmount}</h2>

@@ -218,6 +218,7 @@ function RaisingComplaint({ userDetails }) {
               </div>
             )
             : (complaintDetails.map((item) => (
+              <>
               <div className="empty-box-2 shadow my-4">
                 <h5>{item.subject}</h5>
                 <h5>{item.product}</h5>
@@ -231,6 +232,7 @@ function RaisingComplaint({ userDetails }) {
                   <div className="w-100 text-center" onClick={() => handleShowInfo(item)}><Icon.InfoCircle className="icon-color" /></div>
                 </div>
               </div>
+              </>
             )))
           }
         </div>

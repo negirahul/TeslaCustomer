@@ -16,6 +16,8 @@ import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 import { FileOpener } from '@capacitor-community/file-opener';
 import { isDisabled } from "@testing-library/user-event/dist/utils";
 
+import Compressor from 'compressorjs';
+
 function RegisterWarranty({ userDetails }) {
 
   let newDate = new Date()
@@ -78,6 +80,32 @@ function RegisterWarranty({ userDetails }) {
       var data = response.data;
       if(data.statusCode === 200){
         setProductDetails(data.data);
+      }
+    });
+  }
+
+  const [vehicleDetails, setVehicleDetails] = useState([]);
+  useEffect(() => {
+    getVehicleDetails();
+  },[userDetails])
+  function getVehicleDetails(){
+    axios.get( process.env.REACT_APP_ADMIN_URL + 'vehicleDetails.php').then(function(response) {
+      var data = response.data;
+      if(data.statusCode === 200){
+        setVehicleDetails(data.data);
+      }
+    });
+  }
+
+  const [engineTypes, setEngineTypes] = useState([]);
+  useEffect(() => {
+    getEngineTypes();
+  },[userDetails])
+  function getEngineTypes(){
+    axios.get( process.env.REACT_APP_ADMIN_URL + 'engineTypes.php').then(function(response) {
+      var data = response.data;
+      if(data.statusCode === 200){
+        setEngineTypes(data.data);
       }
     });
   }
@@ -147,24 +175,64 @@ function RegisterWarranty({ userDetails }) {
     setQrCode(qrCode);
   };
 
+  const [compressedFile, setCompressedFile] = useState();
+
   const [inputs, setInputs] = useState([]);
   const [billCopy, setBillCopy] = useState();
   const [warrantyCard, setWarrantyCard] = useState();
   const warrantyChange = (event) => {
     if(event.target.name === 'bill_copy'){
-      let reader = new FileReader();
-      reader.onload = function(event) {
-        let changeImage = event.target.result;
-        setBillCopy(changeImage);
-      }
-      reader.readAsDataURL(event.target.files[0]);
+      const image = event.target.files[0];
+      new Compressor(image, {
+        quality: 0.8, // 0.6 can also be used, but its not recommended to go below.
+        success: (compressedResult) => {
+          // compressedResult has the compressed file.
+          // Use the compressed file to upload the images to your server.        
+          // setCompressedFile(compressedResult);
+          // console.log(compressedResult);
+
+          var reader = new FileReader();
+          reader.readAsDataURL(compressedResult); 
+          reader.onloadend = function() {
+            var base64data = reader.result;          
+            setBillCopy(base64data);      
+            // console.log(base64data);
+          }
+        },
+      });
+      // let reader = new FileReader();
+      // reader.onload = function() {
+      //   let changeImage = reader.result;
+      //   setBillCopy(changeImage);
+      //   console.log(changeImage);
+      // }
+      // reader.readAsDataURL(compressedFile);
+      // console.log(event.target.files[0]);
     }else if(event.target.name === 'warranty_card'){
-      let reader = new FileReader();
-      reader.onload = function(event) {
-        let changeImage = event.target.result;
-        setWarrantyCard(changeImage);
-      }
-      reader.readAsDataURL(event.target.files[0]);
+      const image = event.target.files[0];
+      new Compressor(image, {
+        quality: 0.8, // 0.6 can also be used, but its not recommended to go below.
+        success: (compressedResult) => {
+          // compressedResult has the compressed file.
+          // Use the compressed file to upload the images to your server.        
+          // setCompressedFile(compressedResult);
+          // console.log(compressedResult);
+
+          var reader = new FileReader();
+          reader.readAsDataURL(compressedResult); 
+          reader.onloadend = function() {
+            var base64data = reader.result;          
+            setWarrantyCard(base64data);      
+            // console.log(base64data);
+          }
+        },
+      });
+      // let reader = new FileReader();
+      // reader.onload = function(event) {
+      //   let changeImage = event.target.result;
+      //   setWarrantyCard(changeImage);
+      // }
+      // reader.readAsDataURL(event.target.files[0]);
     }else{
       const name = event.target.name;
       const value = event.target.value;
@@ -176,11 +244,21 @@ function RegisterWarranty({ userDetails }) {
             setModelDetails(employee.models);
           }
         })
+        setProductId(value);
+      }
+      if(name == 'vehicle_mfr'){
+        vehicleDetails.forEach((employee, index) => {
+          if(employee.id == value){
+            setVehicleModelDetails(employee.models);
+          }
+        })
       }
       if(name == 'state') fetchCityData(value);
     }
   }
   const [modelDetails, setModelDetails] = useState([]);
+  const [vehicleModelDetails, setVehicleModelDetails] = useState([]);
+  const [productId, setProductId] = useState(0);
 
   function isNumeric(value) {
     return /^-?\d+$/.test(value);
@@ -195,39 +273,26 @@ function RegisterWarranty({ userDetails }) {
       if(data.statusCode === 200){
         setSerialNoVerify(true);
         setVerifiedSerialNo(data.data)
+        setProductId(data.data.cat_id);
       }else if(data.statusCode === 201){
         setSerialNoVerify(true);
         setVerifiedSerialNo([])
+        setProductId(0);
       }else if(data.statusCode === 202){
         setVerifiedSerialNo([])
         notify("alert",data.msg);
+        setProductId(0);
       }
     });
-    // setSerialNoVerify(true);
-    // var findvalue = allSerialNo.find((element) => {
-    //   return element.serial_no === inputs.product_serial_no
-    // })
-    // console.log(findvalue);
-    // if(findvalue === undefined || findvalue === ''){
-    //   setVerifiedSerialNo([])
-    //   notify("alert","This Serial No Is Not Valid, Please Enter Valid Serial No");
-    //   return;
-    // }else{
-    //   setVerifiedSerialNo(findvalue)
-    // }
   }
 
   const warrantySubmit = (event) => {
     event.preventDefault();
-    console.log(inputs);
-    // if(inputs.product === undefined || inputs.product === ''){  notify("alert","Please Select Product");return;  }
-    // if(inputs.model_no === undefined || inputs.model_no === ''){  notify("alert","Please Select Model number");return;  }
     if(inputs.product_serial_no === undefined || inputs.product_serial_no === ''){  notify("alert","Please Enter Serial Number");return;  }
     if(inputs.purchase_date === undefined || inputs.purchase_date === ''){  notify("alert","Please Enter Purchase Date");return;  }
     
     setdisabledButton(true);
     axios.post( process.env.REACT_APP_ADMIN_URL + 'customerWarrantyAdd.php', {inputs, billCopy, warrantyCard, userDetails}).then(function(response){
-      console.log(response.data);
       var data = response.data;
       if(data.statusCode === 200){
         notify("success",data.msg);
@@ -262,7 +327,6 @@ function RegisterWarranty({ userDetails }) {
         Filesystem.writeFile({
           path: filePath, data: base64, directory: Directory.Documents
         }).then((res) => {
-          console.log("file location : " + res.uri)
 
           FileOpener.open({
             filePath: res.uri,
@@ -366,11 +430,10 @@ function RegisterWarranty({ userDetails }) {
         </Modal.Header>
         <Modal.Body>
           <form onSubmit={warrantySubmit}>
-              <div>
-                <div className="mb-3">
+              <div className="row">
+                <div className="col-12 mb-3">
                   <label htmlFor="product_serial_no" className="form-label">Product Serial No.</label>
-                  {/* <input type="text" name="product_serial_no" id="product_serial_no" className="form-control" onInput={warrantyChange} /> */}
-                  <div className="input-group mb-3">
+                  <div className="input-group">
                     <input type="text" className="form-control" name="product_serial_no" id="product_serial_no" aria-describedby="button-addon2" onChange={warrantyChange} />
                     <button className="btn btn-dark" type="button" id="button-addon2" onClick={checkSerialNo}>Check</button>
                   </div>
@@ -380,7 +443,7 @@ function RegisterWarranty({ userDetails }) {
                   <>
                     {!verifiedSerialNo ? '' : verifiedSerialNo.length === 0 ? 
                       <>
-                      <div className="mb-3">
+                      <div className="col-6 mb-3">
                         <label htmlFor="product" className="form-label">Product</label>
                         <select className="form-control" name="product" id="product" onChange={warrantyChange}>
                           <option value="">Select Product</option>
@@ -394,9 +457,8 @@ function RegisterWarranty({ userDetails }) {
                           )}
                         </select>
                       </div>
-                      <div className="mb-3">
+                      <div className="col-6 mb-3">
                         <label htmlFor="model_no" className="form-label">Model No.</label>
-                        {/* <input type="text" name="model_no" id="model_no" className="form-control" onInput={warrantyChange} /> */}
                         <select className="form-control" name="model_no" id="model_no" onChange={warrantyChange}>
                           <option value="">Select Model</option>
                           {!modelDetails ? (
@@ -411,29 +473,87 @@ function RegisterWarranty({ userDetails }) {
                       </div>
                       </>
                     : 
-                      <>
+                      <div className="col-12 mb-3">
                       <p>
                         <strong>Product : </strong> {verifiedSerialNo.cat_name}<br/>
                         <strong>Model : </strong> {verifiedSerialNo.model_name}<br/>
                         <strong>Model Description : </strong> {verifiedSerialNo.model_description}
                       </p>
                       <hr/>
-                      </>
+                      </div>
                     }
+
+                    {(productId == 22 || productId == 3 || productId == 19) ? 
+                      <div className="col-6 mb-3">
+                        <label htmlFor="vehicle_mfr" className="form-label">Vehicle Manufacturer</label>
+                        <select className="form-control" name="vehicle_mfr" id="vehicle_mfr" onChange={warrantyChange}>
+                          <option value="">Select Manufacturer</option>
+                          {!vehicleDetails ? (
+                              <option>Loading data...</option>
+                            ) : vehicleDetails.length === 0 ? (
+                              <option>No data found</option>
+                            ) : (vehicleDetails.map((item) => (
+                              <option value={item.id} data-key={item.models} >{item.name}</option>
+                            ))
+                          )}
+                        </select>
+                      </div>
+                    : ""}
+                    
+                    {(productId == 22 || productId == 3 || productId == 19) ? 
+                      <div className="col-6 mb-3">
+                        <label htmlFor="vehicle_model" className="form-label">Vehicle Model</label>
+                        <select className="form-control" name="vehicle_model" id="vehicle_model" onChange={warrantyChange}>
+                          <option value="">Select Model</option>
+                          {!vehicleModelDetails ? (
+                              <option>Loading data...</option>
+                            ) : vehicleModelDetails.length === 0 ? (
+                              <option>No data found</option>
+                            ) : (vehicleModelDetails.map((item) => (
+                              <option value={item.id}>{item.veh_model_name}</option>
+                            ))
+                          )}
+                        </select>
+                      </div>
+                    : ""}
+
+                    {productId == 22 ? 
+                      <div className="col-6 mb-3">
+                        <label htmlFor="engine_type" className="form-label">Engine Type</label>
+                        <select className="form-control" name="engine_type" id="engine_type" onChange={warrantyChange}>
+                          <option value="">Select Engine Type</option>
+                          {!engineTypes ? (
+                              <option>Loading data...</option>
+                            ) : engineTypes.length === 0 ? (
+                              <option>No data found</option>
+                            ) : (engineTypes.map((item) => (
+                              <option value={item}>{item}</option>
+                            )))
+                          }
+                        </select>
+                      </div>  
+                    : ""}
+                    
+                    {(productId == 22 || productId == 3 || productId == 19) ? 
+                      <div className="col-6 mb-3">
+                        <label htmlFor="reg_no" className="form-label">Registration Number</label>
+                        <input name="reg_no" id="reg_no" className="form-control" onInput={warrantyChange}/>
+                      </div>
+                    : ""}
 
                     {needCustinfo === true ? 
                       <>
-                      <div className="mb-3">
+                      <div className="col-12 mb-3">
                         <label htmlFor="address" className="form-label">Customer Address</label>
                         <textarea name="address" id="address" className="form-control" onInput={warrantyChange}></textarea>
                       </div>
 
-                      <div className="mb-3">
+                      <div className="col-12 mb-3">
                         <label htmlFor="pin_code" className="form-label">Customer Pin Code</label>
                         <input type="text" name="pin_code" id="pin_code" className="form-control" onInput={warrantyChange} />
                       </div>
 
-                      <div className="mb-3">
+                      <div className="col-6 mb-3">
                         <label htmlFor="state" className="form-label">Customer State</label>
                         <select className="form-control" name="state" id="state" onChange={warrantyChange}>
                           <option>--- Select State ---</option>
@@ -448,7 +568,7 @@ function RegisterWarranty({ userDetails }) {
                         </select>
                       </div>
 
-                      <div className="mb-3">
+                      <div className="col-6 mb-3">
                         <label htmlFor="city" className="form-label">Customer City</label>
                         <select className="form-control" name="city" id="city" onChange={warrantyChange}>
                           {/* <option>--- Select City ---</option> */}
@@ -465,7 +585,7 @@ function RegisterWarranty({ userDetails }) {
                       </>
                     : ''}
 
-                      <div className="mb-3">
+                      <div className="col-6 mb-3">
                         <label htmlFor="dealer_id" className="form-label">Select Dealer</label>
                         <select className="form-control" name="dealer_id" id="dealer_id" onChange={warrantyChange}>
                           <option value="">Select Dealer</option>  
@@ -478,11 +598,11 @@ function RegisterWarranty({ userDetails }) {
                         </select>
                       </div>
 
-                    <div className="mb-3">
+                    <div className="col-6 mb-3">
                       <label htmlFor="purchase_date" className="form-label">Date of Purchase</label>
                       <input type="date" name="purchase_date" id="purchase_date" className="form-control" max={currdate} onInput={warrantyChange} />
                     </div>
-                    <div className="mb-3">
+                    <div className="col-6 mb-3">
                       <label htmlFor="bill_copy" className="form-label">Attach Bill Copy</label>
                       <input type="file" name="bill_copy" id="bill_copy" className="form-control" onChange={warrantyChange} accept="image/*;capture=camera" required/>
                       {/* <input type="file" accept="image/*;capture=camera" />
@@ -490,7 +610,7 @@ function RegisterWarranty({ userDetails }) {
                       <input type="file" accept="image/*" />
                       <input type="file" accept="image/*" capture="environment"/> */}
                     </div>
-                    <div className="mb-3">
+                    <div className="col-6 mb-3">
                       <label htmlFor="warranty_card" className="form-label">Attach Warranty Card</label>
                       <input type="file" name="warranty_card" id="warranty_card" className="form-control" onChange={warrantyChange} accept="image/*;capture=camera" required/>
                     </div>

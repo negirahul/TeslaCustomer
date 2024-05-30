@@ -42,7 +42,7 @@ function Dashboard({ userDetails }) {
 
   const logout = () => {
     setCookie('userId', '', { path: '/', maxAge: -1 });
-    window.location.reload();
+    window.location.reload(); 
   }
 
   const [warrantyDetails, setWarrantyDetails] = useState(0);
