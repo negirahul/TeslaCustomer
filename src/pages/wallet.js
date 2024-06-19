@@ -88,8 +88,8 @@ function Wallet({ userDetails }) {
             <div className="mainbody" style={{height: '90vh'}}>
               <div className="empty-box shadow my-4">
                 <div className="text-center main-abmount">
-                  <h2>&#8377; {userDetails.walletAmount}</h2>
-                  <span>WALLET BALANCE</span>
+                  <h2>{userDetails.walletAmount}</h2>
+                  <span>WALLET POINTS</span>
                 </div>
 
                 <div className="row">

@@ -68,10 +68,8 @@ function Profile({ userDetails }) {
     console.log(inputs);
     if (inputs.name === undefined || inputs.name === '') { notify("alert", "Please Enter Your Name"); return; }
     if (inputs.email_address === undefined || inputs.email_address === '') { notify("alert", "Please Enter Your Email Address"); return; }
-    if (inputs.company_name === undefined || inputs.company_name === '') { notify("alert", "Please Enter OTP"); return; }
-    if (inputs.gst_no === undefined || inputs.gst_no === '') { notify("alert", "Please Select Your Password"); return; }
-    if (inputs.address === undefined || inputs.address === '') { notify("alert", "Please Select Your Password"); return; }
-    if (inputs.pin_code === undefined || inputs.pin_code === '') { notify("alert", "Please Select Your Password"); return; }
+    if (inputs.address === undefined || inputs.address === '') { notify("alert", "Please Enter Your Address"); return; }
+    if (inputs.pin_code === undefined || inputs.pin_code === '') { notify("alert", "Please Enter Your Pincode"); return; }
     if (inputs.state === undefined || inputs.state === '') { notify("alert", "Please Select Your State"); return; }
     if (inputs.city === undefined || inputs.city === '') { notify("alert", "Please Select Your City"); return; }
 
@@ -209,8 +207,6 @@ function Profile({ userDetails }) {
                   <ListGroup.Item><strong>Name : </strong> {inputs.name}</ListGroup.Item>
                   <ListGroup.Item><strong>Email Address : </strong> {inputs.email_address}</ListGroup.Item>
                   <ListGroup.Item><strong>Mobile Number : </strong> {inputs.mobile_number}</ListGroup.Item>
-                  <ListGroup.Item><strong>Company / Store Name : </strong> {inputs.company_name}</ListGroup.Item>
-                  <ListGroup.Item><strong>GST No. : </strong> {inputs.gst_no}</ListGroup.Item>
                   <ListGroup.Item><strong>Pin Code : </strong> {inputs.pin_code}</ListGroup.Item>
                   <ListGroup.Item><strong>State : </strong> {inputs.state_name}</ListGroup.Item>
                   <ListGroup.Item><strong>City : </strong> {inputs.city_name}</ListGroup.Item>
@@ -247,14 +243,6 @@ function Profile({ userDetails }) {
                   <div className="mb-3">
                     <label className="form-label">Mobile Number</label>
                     <input type="text" className="form-control" value={inputs.mobile_number} disabled />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="company_name" className="form-label">Company / Store Name</label>
-                    <input type="text" name="company_name" id="company_name" className="form-control" onInput={profileChange} value={inputs.company_name} />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="gst_no" className="form-label">GST No.</label>
-                    <input type="text" name="gst_no" id="gst_no" className="form-control" onInput={profileChange} value={inputs.gst_no} />
                   </div>
                   <div className="mb-3">
                     <label htmlFor="address" className="form-label">Address</label>
@@ -301,7 +289,7 @@ function Profile({ userDetails }) {
             }
           </div>
 
-          <div className="bg-white shadow profile-box my-4">
+          {/* <div className="bg-white shadow profile-box my-4">
             <form onSubmit={passwordSubmit}>
               <div className="mb-3">
                 <label className="form-label">Enter Password</label>
@@ -313,7 +301,7 @@ function Profile({ userDetails }) {
               </div>
               <Button type="submit" variant="primary" className="btn-black-form">Change Password</Button>
             </form>
-          </div>
+          </div> */}
         </div>
 
         <Modal show={modalShow.show} onHide={() => setModalShow({ show: false, title: '' })} size="sm" aria-labelledby="contained-modal-title-vcenter" centered>

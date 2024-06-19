@@ -29,6 +29,7 @@ function Dashboard({ userDetails }) {
 
   useEffect(() => {
     fetchOffer();
+    getWalletDetails();
   }, [userDetails])
   const [offer, setOffer] = useState([]);
   function fetchOffer() {
@@ -36,6 +37,16 @@ function Dashboard({ userDetails }) {
       var data = response.data;
       if (data.statusCode === 200) {
         setOffer(data.offer);
+      }
+    });
+  }
+
+  const [walletDetails, setWalletDetails] = useState([]);
+  function getWalletDetails() {
+    axios.get(process.env.REACT_APP_ADMIN_URL + 'walletDetails.php?userId=' + userDetails.id).then(function (response) {
+      var data = response.data;
+      if (data.statusCode === 200) {
+        setWalletDetails(data.data);
       }
     });
   }
@@ -90,7 +101,7 @@ function Dashboard({ userDetails }) {
           <div className="wallet-box py-4">
             <div className="d-flex align-items-center">
               <div className="w-25 icon-2"><Icon.Wallet /></div>
-              <div className="w-50 wallet-text">&#8377; {userDetails.walletAmount}<span>Your Wallet Balance</span></div>
+              <div className="w-50 wallet-text">{userDetails.walletAmount}<span>Your Wallet Points</span></div>
               <div className="drop-btn w-25 text-white"><Link className="text-white" to={'../wallet'}><Icon.ThreeDotsVertical /></Link></div>
             </div>
           </div>
